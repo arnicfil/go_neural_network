@@ -28,7 +28,7 @@ func Scale(scale float64, matrix mat.Matrix) mat.Matrix {
 	return res
 }
 
-func Multiply(a, b mat.Matrix) (mat.Matrix, error) {
+func Multiply(a, b mat.Matrix) (*mat.Dense, error) {
 	w1, h1 := a.Dims()
 	w2, h2 := b.Dims()
 
@@ -41,7 +41,7 @@ func Multiply(a, b mat.Matrix) (mat.Matrix, error) {
 	return res, nil
 }
 
-func Add(a, b mat.Matrix) (mat.Matrix, error) {
+func Add(a, b mat.Matrix) (*mat.Dense, error) {
 	w1, h1 := a.Dims()
 	w2, h2 := b.Dims()
 
@@ -75,5 +75,12 @@ func AddScalar(scalar float64, matrix mat.Matrix) mat.Matrix {
 	}
 
 	res := mat.NewDense(w, h, resVec)
+	return res
+}
+
+func ApplyFunction(f func(i, j int, x float64) float64, matrix mat.Matrix) mat.Matrix {
+	w, h := matrix.Dims()
+	res := mat.NewDense(w, h, nil)
+	res.Apply(f, matrix)
 	return res
 }
