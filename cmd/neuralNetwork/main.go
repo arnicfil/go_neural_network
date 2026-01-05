@@ -35,6 +35,8 @@ func mnistTrain(n *NeuralNetwork) {
 			}
 			x, _ := strconv.Atoi(record[0])
 			targets[x] = 0.99
+
+			n.Train(inputs, targets)
 		}
 
 		testFile.Close()

@@ -74,7 +74,7 @@ func (n NeuralNetwork) Predict(inputData []float64) (mat.Matrix, mat.Matrix, err
 }
 
 func (n *NeuralNetwork) Train(inputData []float64, targetData []float64) error {
-	inputs := mat.NewDense(len(targetData), 1, inputData)
+	inputs := mat.NewDense(len(inputData), 1, inputData)
 	targets := mat.NewDense(len(targetData), 1, targetData)
 
 	networkOutput, hiddenOuputs, err := n.Predict(inputData)
@@ -165,7 +165,7 @@ func (n *NeuralNetwork) load(fileName string) error {
 		return fmt.Errorf("Error reading file: %v", err)
 	}
 
-	n.hiddenWeights = &mat.Dense{}
+	n.outputWeights = &mat.Dense{}
 	err = n.outputWeights.UnmarshalBinary(data)
 	if err != nil {
 		return fmt.Errorf("Error unmarshaling data: %v", err)
