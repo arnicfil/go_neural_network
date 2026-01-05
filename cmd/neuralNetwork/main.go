@@ -53,6 +53,18 @@ func mnistPredict(n *NeuralNetwork) error {
 
 	score := 0
 	r := csv.NewReader(bufio.NewReader(checkFile))
+
+	// Debug: print network dimensions
+	fmt.Printf("inputSize: %d\n", n.inputSize)
+	fmt.Printf("hiddenSize: %d\n", n.hiddenSize)
+	fmt.Printf("outputSize: %d\n", n.outputSize)
+
+	hr, hc := n.hiddenWeights.Dims()
+	fmt.Printf("hiddenWeights dims: %d x %d\n", hr, hc)
+
+	or, oc := n.outputWeights.Dims()
+	fmt.Printf("outputWeights dims: %d x %d\n", or, oc)
+
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
@@ -104,12 +116,23 @@ func main() {
 	switch *mnist {
 	case "train":
 		mnistTrain(&n)
-		n.save("weights.model")
-	case "predict":
-		n.load("weights.model")
 		err := mnistPredict(&n)
 		if err != nil {
-			fmt.Printf("Error while predicting: %v", err)
+			fmt.Printf("Error while predicting: %v\n", err)
+		}
+		err = n.save("weights.model") // ← Check error
+		if err != nil {
+			fmt.Printf("Error saving:  %v\n", err)
+		}
+	case "predict":
+		err := n.load("weights.model") // ← Check error
+		if err != nil {
+			fmt.Printf("Error loading:  %v\n", err)
+			return // ← Don't continue if load failed
+		}
+		err = mnistPredict(&n)
+		if err != nil {
+			fmt.Printf("Error while predicting: %v\n", err)
 		}
 	default:
 		// don't do anything

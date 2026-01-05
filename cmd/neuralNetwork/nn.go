@@ -127,48 +127,54 @@ func (n *NeuralNetwork) Train(inputData []float64, targetData []float64) error {
 }
 
 func (n NeuralNetwork) save(fileName string) error {
-	data, err := n.hiddenWeights.MarshalBinary()
+	h, err := os.Create("data/h" + fileName)
 	if err != nil {
-		return fmt.Errorf("Error marshaling hiddenWeigts: %v", err)
+		return fmt.Errorf("Error creating hidden weights file: %v", err)
 	}
-	err = os.WriteFile("data/h"+fileName, data, 0644)
+	defer h.Close()
+
+	_, err = n.hiddenWeights.MarshalBinaryTo(h)
 	if err != nil {
-		return fmt.Errorf("Error writing file: %v", err)
+		return fmt.Errorf("Error marshaling hidden weights:  %v", err)
 	}
 
-	data, err = n.outputWeights.MarshalBinary()
+	o, err := os.Create("data/o" + fileName)
 	if err != nil {
-		return fmt.Errorf("Error marshaling outputWeights: %v", err)
+		return fmt.Errorf("Error creating output weights file: %v", err)
 	}
-	err = os.WriteFile("data/o"+fileName, data, 0644)
+	defer o.Close()
+
+	_, err = n.outputWeights.MarshalBinaryTo(o)
 	if err != nil {
-		return fmt.Errorf("Error writing file: %v", err)
+		return fmt.Errorf("Error marshaling output weights: %v", err)
 	}
 
 	return nil
 }
 
 func (n *NeuralNetwork) load(fileName string) error {
-	data, err := os.ReadFile("data/h" + fileName)
+	h, err := os.Open("data/h" + fileName)
 	if err != nil {
-		return fmt.Errorf("Error reading file: %v", err)
+		return fmt.Errorf("Error opening hidden weights file: %v", err)
+	}
+	defer h.Close()
+
+	n.hiddenWeights.Reset()
+	_, err = n.hiddenWeights.UnmarshalBinaryFrom(h)
+	if err != nil {
+		return fmt.Errorf("Error unmarshaling hidden weights:  %v", err)
 	}
 
-	n.hiddenWeights = &mat.Dense{}
-	err = n.hiddenWeights.UnmarshalBinary(data)
+	o, err := os.Open("data/o" + fileName)
 	if err != nil {
-		return fmt.Errorf("Error unmarshaling data: %v", err)
+		return fmt.Errorf("Error opening output weights file: %v", err)
 	}
+	defer o.Close()
 
-	data, err = os.ReadFile("data/o" + fileName)
+	n.outputWeights.Reset()
+	_, err = n.outputWeights.UnmarshalBinaryFrom(o)
 	if err != nil {
-		return fmt.Errorf("Error reading file: %v", err)
-	}
-
-	n.outputWeights = &mat.Dense{}
-	err = n.outputWeights.UnmarshalBinary(data)
-	if err != nil {
-		return fmt.Errorf("Error unmarshaling data: %v", err)
+		return fmt.Errorf("Error unmarshaling output weights: %v", err)
 	}
 
 	return nil

@@ -9,14 +9,14 @@ import (
 var ERROR_DIMS = errors.New("Error dimensions aren't right")
 
 func Dot(m, n mat.Matrix) (mat.Matrix, error) {
-	w, _ := m.Dims()
-	_, h := n.Dims()
+	rm, cm := m.Dims()
+	rn, cn := n.Dims()
 
-	if w != h {
+	if cm != rn {
 		return nil, ERROR_DIMS
 	}
 
-	res := mat.NewDense(w, h, nil)
+	res := mat.NewDense(rm, cn, nil)
 	res.Product(m, n)
 	return res, nil
 }
